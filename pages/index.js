@@ -1,6 +1,7 @@
 import Head from 'next/head'
+import clientPromise from '../lib/mongodb'
 
-export default function Home() {
+export default function Home({ isConnected }) {
   return (
     <div className="container">
       <Head>
@@ -10,8 +11,17 @@ export default function Home() {
 
       <main>
         <h1 className="title">
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
+          Welcome to <a href="https://nextjs.org">Next.js with MongoDB!</a>
         </h1>
+
+        {isConnected ? (
+          <h2 className="subtitle">You are connected to MongoDB</h2>
+        ) : (
+          <h2 className="subtitle">
+            You are NOT connected to MongoDB. Check the <code>README.md</code>{' '}
+            for instructions.
+          </h2>
+        )}
 
         <p className="description">
           Get started by editing <code>pages/index.js</code>
@@ -29,7 +39,7 @@ export default function Home() {
           </a>
 
           <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
+            href="https://github.com/vercel/next.js/tree/canary/examples"
             className="card"
           >
             <h3>Examples &rarr;</h3>
@@ -37,7 +47,7 @@ export default function Home() {
           </a>
 
           <a
-            href="https://vercel.com/import?filter=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
+            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
             className="card"
           >
             <h3>Deploy &rarr;</h3>
@@ -55,7 +65,7 @@ export default function Home() {
           rel="noopener noreferrer"
         >
           Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel" className="logo" />
+          <img src="/vercel.svg" alt="Vercel Logo" className="logo" />
         </a>
       </footer>
 
@@ -122,6 +132,10 @@ export default function Home() {
         .title,
         .description {
           text-align: center;
+        }
+
+        .subtitle {
+          font-size: 2rem;
         }
 
         .description {
@@ -206,4 +220,27 @@ export default function Home() {
       `}</style>
     </div>
   )
+}
+
+export async function getServerSideProps(context) {
+  try {
+    await clientPromise
+    // `await clientPromise` will use the default database passed in the MONGODB_URI
+    // However you can use another database (e.g. myDatabase) by replacing the `await clientPromise` with the folloing code:
+    //
+    // `const client = await clientPromise`
+    // `const db = client.db("myDatabase")`
+    //
+    // Then you can execute queries against your database like so:
+    // db.find({}) or any of the MongoDB Node Driver commands
+
+    return {
+      props: { isConnected: true },
+    }
+  } catch (e) {
+    console.error(e)
+    return {
+      props: { isConnected: false },
+    }
+  }
 }

@@ -1,9 +1,41 @@
-export default function handler(req, res) {
+import { connectToDatabase } from "../../lib/mongodb";
+
+
+export default async function handler(req, res) {
+    const { db } = await connectToDatabase();
+
     switch (req.method) {
-        case "POST": res.status(200).json({ name: 'post method' }); break;
-        case "GET": res.status(200).json({ name: 'get method' }); break;
-        case "PUT": res.status(200).json({ name: 'put method' }); break;
-        case "DELETE": res.status(200).json({ name: 'delete method' }); break;
-        default: res.status(400).json({ name: 'error' }); break;
+        case "GET":
+            const movies = await db
+                .collection("movies")
+                .find({})
+                .sort({ metacritic: -1 })
+                .limit(20)
+                .toArray();
+            res.json(movies);
+            break;
+        case "POST":
+            const post = await db
+                .collection("movies")
+                .find({})
+                .sort({ metacritic: -1 })
+                .limit(1)
+                .toArray();
+            res.json(post);
+            break;
+        case "PUT":
+            const put = await db
+                .collection("movies")
+                .find({})
+                .sort({ metacritic: -1 })
+                .limit(2)
+                .toArray();
+            res.json(put);
+            break;
+
+        default:
+            res.status(400).json({ error: "Hata" });
+            break;
     }
 }
+
